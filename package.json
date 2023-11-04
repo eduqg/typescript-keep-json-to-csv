@@ -1,0 +1,16 @@
+{
+  "name": "typescript-extract-json-to-csv",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "tsx watch main.ts"
+  },
+  "dependencies": {
+    "tsx": "^3.14.0",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.9"
+  }
+}
