@@ -1,11 +1,11 @@
 import * as fs from "fs";
-import {input} from "./input";
+import { input } from "./input";
 
 interface NodeItem {
   id: string;
   parentId: string;
   timestamps: {
-    updated: string;
+    created: string;
   };
   title?: string;
   text?: string;
@@ -18,7 +18,7 @@ interface FileJson {
 interface FileNodeResult {
   title: string;
   text: string;
-  updated: string;
+  created: string;
   position: number;
 }
 
@@ -26,10 +26,10 @@ function jsonToCsv(jsonDataArray: FileJson[]) {
   const csvArray: string[] = [];
   let position = 0;
 
-  // Cabeçalho do CSV
-  csvArray.push("position,id,title,text,updated");
+  // CSV header
+  csvArray.push("position,id,title,text,created");
 
-  // Objeto para mapear parentId com título e texto correspondentes
+  // Object to map titles and descriptions by parentId
   const parentMap: { [id: string]: FileNodeResult } = {};
 
   for (const jsonData of jsonDataArray) {
@@ -39,14 +39,14 @@ function jsonToCsv(jsonDataArray: FileJson[]) {
         parentId,
         title,
         text,
-        timestamps: { updated },
+        timestamps: { created },
       } = item;
 
       const idToInsert = title || title === "" ? id : parentId;
 
       if (!parentMap[idToInsert]) {
         position = position + 1;
-        parentMap[idToInsert] = { title: "", text: "", updated, position };
+        parentMap[idToInsert] = { title: "", text: "", created, position };
       }
       if (title) {
         parentMap[id].title = title;
@@ -58,30 +58,29 @@ function jsonToCsv(jsonDataArray: FileJson[]) {
     });
   }
 
-  console.log("Convertendo para CSV");
+  console.log("Converting to CSV");
 
-  // Converter o mapeamento em linhas CSV
+  // Convert map to csv rows
   for (const parentId in parentMap) {
-    const { position, title, text, updated } = parentMap[parentId];
+    const { position, title, text, created } = parentMap[parentId];
     csvArray.push(
       `${position},${parentId},"${title.toLowerCase()}",${JSON.stringify(
-        text.replace(/\n|\r/g, "  ")
-      ).trim()},"${updated}"`
+        text.replace(/\n|\r/g, "  ").replace(/"/g, "")
+      ).trim()},"${created}"`
     );
   }
 
-  // Converter o array em uma única string com quebras de linha
   const csvData = csvArray.join("\n");
 
   return { csvData, position };
 }
 
-console.log("Iniciando...");
+console.log("Starting...");
 
-// Converter o JSON em CSV
+// Convert JSON to CSV
 const { csvData, position } = jsonToCsv(input);
 
-// Escrever o CSV em um arquivo
+// Write CSV in a file
 fs.writeFileSync("output.csv", csvData, "utf-8");
 
-console.log(`Finalizado! Total de itens: ${position}`);
+console.log(`Success! Total itens: ${position}`);
